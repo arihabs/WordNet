@@ -1,9 +1,12 @@
 import edu.princeton.cs.algs4.Digraph;
 import edu.princeton.cs.algs4.BreadthFirstDirectedPaths;
-//import edu.princeton.cs.algs4.DirectedCycle;
+import edu.princeton.cs.algs4.In;
+import edu.princeton.cs.algs4.StdIn;
+import edu.princeton.cs.algs4.StdOut;
 
 public class SAP{
     private Digraph G;
+    private static final int INFINITY = Integer.MAX_VALUE;
     // constructor takes a digraph (not necessarily a DAG)
     public SAP(Digraph G){
         // Digraph Constructor already checks if input is null
@@ -19,24 +22,90 @@ public class SAP{
 
     // length of shortest ancestral path between v and w; -1 if no such path
     public int length(int v, int w){
-        return -1;
+        //stats = {minDist, commonAncestor}
+        int[] stats = sap(v,w);
+        return stats[0];
     }
 
     // a common ancestor of v and w that participates in a shortest ancestral path; -1 if no such path
     public int ancestor(int v, int w){
-        return -1;
+        int[] stats = sap(v,w);
+        return stats[1];
     }
 
     // length of shortest ancestral path between any vertex in v and any vertex in w; -1 if no such path
     public int length(Iterable<Integer> v, Iterable<Integer> w){
-        return -1;
+        int[] stats = sap(v,w);
+        return stats[0];
     }
 
     // a common ancestor that participates in shortest ancestral path; -1 if no such path
     public int ancestor(Iterable<Integer> v, Iterable<Integer> w){
-        return -1;
+        int[] stats = sap(v,w);
+        return stats[1];
     }
 
+    private int[] sap(int v, int w){
+        BreadthFirstDirectedPaths bfsV = new BreadthFirstDirectedPaths(this.G,v);
+        BreadthFirstDirectedPaths bfsW = new BreadthFirstDirectedPaths(this.G,w);
+        int[] stats = sapStats(bfsV, bfsW);
+        return stats;
+
+//        int minDist = INFINITY;
+//        int commonAncestor = -1;
+//        for(int x = 0; x < this.G.V(); x++){
+//            if(!bfsV.hasPathTo(x) || bfsW.hasPathTo(x))
+//                continue;
+//            int distV = bfsV.distTo(x);
+//            int distW = bfsW.distTo(x);
+//            int currentDist = distV + distW;
+//            if(currentDist < minDist){
+//                minDist = currentDist;
+//                commonAncestor = x;
+//            }
+//        }
+    }
+
+    private int[] sap(Iterable<Integer> v, Iterable<Integer> w){
+        BreadthFirstDirectedPaths bfsV = new BreadthFirstDirectedPaths(this.G,v);
+        BreadthFirstDirectedPaths bfsW = new BreadthFirstDirectedPaths(this.G,w);
+        int[] stats = sapStats(bfsV, bfsW);
+        return stats;
+
+//        int minDist = INFINITY;
+//        int commonAncestor = -1;
+//        for(int x = 0; x < this.G.V(); x++){
+//            if(!bfsV.hasPathTo(x) || bfsW.hasPathTo(x))
+//                continue;
+//            int distV = bfsV.distTo(x);
+//            int distW = bfsW.distTo(x);
+//            int currentDist = distV + distW;
+//            if(currentDist < minDist){
+//                minDist = currentDist;
+//                commonAncestor = x;
+//            }
+//        }
+    }
+
+    private int[] sapStats(BreadthFirstDirectedPaths bfsV, BreadthFirstDirectedPaths bfsW){
+        int minDist = INFINITY;
+        int commonAncestor = -1;
+        for(int x = 0; x < this.G.V(); x++){
+            if(!bfsV.hasPathTo(x) || !bfsW.hasPathTo(x))
+                continue;
+            int distV = bfsV.distTo(x);
+            int distW = bfsW.distTo(x);
+            int currentDist = distV + distW;
+            if(currentDist < minDist){
+                minDist = currentDist;
+                commonAncestor = x;
+            }
+        }
+        if(minDist == INFINITY)
+            minDist = -1;
+        int[] stats = {minDist, commonAncestor};
+        return stats;
+    }
     // Vertex validation taken from BreadthFirstDirectedPaths.java
     private void validateVertex(int v) {
         int V = this.G.V();
@@ -62,5 +131,16 @@ public class SAP{
     }
 
     // unit testing
-    public static void main(String[] args){}
+    public static void main(String[] args){
+        In in = new In(args[0]);
+        Digraph G = new Digraph(in);
+        SAP sap = new SAP(G);
+        while(!StdIn.isEmpty()){
+            int v = StdIn.readInt();
+            int w = StdIn.readInt();
+            int length = sap.length(v,w);
+            int ancestor = sap.ancestor(v,w);
+            StdOut.printf("length = %d, ancestor = %d\n",length,ancestor);
+        }
+    }
 }
