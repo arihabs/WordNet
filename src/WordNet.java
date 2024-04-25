@@ -111,10 +111,16 @@ public class WordNet{
     public static void main(String[] args){
         WordNet Wn = new WordNet(args[0], args[1]);
         // Go Through each noun and check if it's a noun.
-        Iterable<String> nouns = Wn.nouns();
-        for(String n : nouns){
-            StdOut.println(n + " isnoun: "+ Wn.isNoun(n));
+        int nPairs = Wn.V/2;
+        Queue<String> nouns = (Queue<String>) Wn.nouns();
+        for(int i = 0; i < nPairs; i++){
+            String n1 = nouns.dequeue();
+            String n2 = nouns.dequeue();
+            StdOut.printf("(%s, %s), distance = %d, SAP = {%s}\n",n1,n2,Wn.distance(n1,n2),Wn.sap(n1,n2));
         }
+//        for(String n : nouns){
+//            StdOut.println(n + " isnoun: "+ Wn.isNoun(n));
+//        }
     }
 
 }
